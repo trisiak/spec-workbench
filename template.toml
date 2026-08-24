@@ -10,13 +10,13 @@ slug = "spec-workbench"
 title = "Spec Workbench"
 description = "Living markdown documents with Google-Docs-style margin comments: annotate any file, notify your agent, and collaborate through threads stored inline in plain markdown in git"
 thumbnail = "template.svg"
-version = "v1"
+version = "v2"
 
 # How this template is DERIVED from the workspace it came from. An
 # update re-runs this recipe rather than diffing two repos, which is what
 # keeps an exclusion excluded even though the thing still exists upstream.
 [recipe]
-include = ["system/apps/spec_workbench", "docs/specs/spec_workbench.md"]
+include = ["system/apps/spec_workbench", "docs/specs/spec_workbench.md", "docs/specs/how_to_use_spec_workbench.md"]
 data_include = []
 exclude = [
     "the source mind's other apps and libraries under system/ -- only spec_workbench is part of this template",
@@ -29,6 +29,7 @@ modification_rules = [
     "strip resolved, accepted, and rejected discussion threads from the example spec, keeping only open ones",
     "blank the example spec's notify-agent frontmatter value",
     "add a banner comment to the example spec's frontmatter marking it as the app's own worked example, not adopter documentation",
+    "set the intro document as the default via a single SPEC_WORKBENCH_DOC environment entry on the spec-workbench supervisord program entry -- never personal agent or author names",
 ]
 
 # Everything an adopter must deal with before this is really theirs.
@@ -60,8 +61,8 @@ summary = "comments and replies made through the web UI are signed 'user' by def
 resolution = "add SPEC_WORKBENCH_AUTHOR=<name> to the environment= line on the spec-workbench supervisord entry"
 
 [[requirements.adaptation]]
-summary = "the app opens its own example spec (docs/specs/spec_workbench.md) as the default document"
-resolution = "point SPEC_WORKBENCH_DOC at your own workspace-root-relative markdown file on the spec-workbench supervisord entry"
+summary = "the app opens the bundled how-to-use intro (docs/specs/how_to_use_spec_workbench.md) as the default document"
+resolution = "point SPEC_WORKBENCH_DOC at your own workspace-root-relative markdown file on the spec-workbench supervisord entry to change it"
 
 # What the included code needs INSTALLED. apt takes bare names: versions
 # are a function of the apt snapshot timestamp, so replaying names at the

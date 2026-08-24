@@ -441,7 +441,10 @@ def test_real_spec_document_parses_with_all_expected_notes() -> None:
     document = parse_spec_document(_REAL_SPEC_PATH.read_text())
 
     note_ids = [note.note_id for note in document.notes]
-    # survivors of the first bake: the syntax examples and whatever is open
-    assert set(note_ids) >= {"t0", "s0", "s2"}
+    # survivors of the first bake (2026-08-24): the open suggestion syntax
+    # examples and whatever threads are currently open; every resolved
+    # thread -- t0 included -- was pruned to git history
+    assert set(note_ids) >= {"s0", "s2"}
+    assert all(note.state == NoteState.OPEN for note in document.notes)
     assert document.frontmatter is not None
     assert document.frontmatter.app_name == "spec-workbench"

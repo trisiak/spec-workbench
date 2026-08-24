@@ -20,9 +20,10 @@ _STATUS_CODE_RE: Final[re.Pattern[str]] = re.compile(
     r"\s*--\s*<code>(idea|planned|building|done|verified)</code>"
 )
 
-# A story mark opening a list item, e.g. "- `done` drafted comments survive..."
+# A story mark opening a list item, e.g. "- `done` drafted comments survive...";
+# the full status vocabulary badges here, same as headings (#t28)
 _STORY_MARK_RE: Final[re.Pattern[str]] = re.compile(
-    r"(<li[^>]*>\s*(?:<p[^>]*>)?)<code>(done|open)</code>"
+    r"(<li[^>]*>\s*(?:<p[^>]*>)?)<code>(idea|planned|building|done|verified|open)</code>"
 )
 
 _AGENT_AUTHOR_NAME: Final[str] = "agent"
@@ -170,7 +171,10 @@ def count_message_activity(document: SpecDocument) -> tuple[int, int]:
 @pure
 def build_note_views(document: SpecDocument) -> list[dict[str, object]]:
     """Serialize margin notes into the JSON shape the frontend renders."""
-    markdown_renderer = MarkdownIt()
+    # breaks=True: a message renders inline-only (no structural markdown),
+    # but its line breaks become <br> so multi-line comments keep their
+    # shape -- a blank line reads as a paragraph gap (#t29)
+    markdown_renderer = MarkdownIt("commonmark", {"breaks": True})
     notified_cursor = _normalize_cursor(
         document.frontmatter.notified_at if document.frontmatter is not None else None
     )

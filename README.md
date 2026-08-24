@@ -46,8 +46,7 @@ your prose on the left, a margin of comment threads on the right.
   the work they ask for, and commit. The header counters tell you what is new
   for you and what you have not yet sent over. An optional message rides along
   with the press for extra context ("prioritize the perf thread").
-- **Open any file.** The default view is the app's own living spec (a worked
-  example of the format). Use the in-app "open file..." picker or
+- **Open any file.** The default view is a short "how to use this" intro you can annotate straight away; the app's own living spec -- the deep worked example of the format -- is one click away in the picker. Use the in-app "open file..." picker or
   `?doc=<path>` to point it at any markdown file in your workspace; agents can
   surface a document in your open tab with `uv run open-spec <path>`.
 - **Everything is plain markdown.** Comments, replies, suggestions, and

@@ -2,7 +2,7 @@
 title: "Spec Workbench"
 description: "Living markdown documents with Google-Docs-style margin comments: annotate any file, notify your agent, and collaborate through threads stored inline in plain markdown in git"
 thumbnail: "template.svg"
-version: v1
+version: v2
 format: v2
 ---
 
@@ -38,6 +38,7 @@ from the original mind onto a clean default-workspace-template base):
 
 - `system/apps/spec_workbench`
 - `docs/specs/spec_workbench.md`
+- `docs/specs/how_to_use_spec_workbench.md`
 
 `system/apps/spec_workbench` is the whole app: a Flask web service (the app's
 `spec-workbench` package) that renders any markdown file under the workspace
@@ -49,10 +50,11 @@ ships an `open-spec` CLI (`uv run open-spec <path>`) that an agent uses to
 surface a document in the user's open tab.
 
 `docs/specs/spec_workbench.md` is the app's own living spec -- the document that
-describes the app and is edited through it. It ships as the app's default
-document (what loads when no `?doc=` is given) and doubles as a worked example
-of the on-disk format: its remaining threads and its dev history show what a
-real Spec Workbench document looks like in practice.
+describes the app and is edited through it. It is included as the deep worked
+example of the on-disk format; the bundled intro document
+(`docs/specs/how_to_use_spec_workbench.md`) is the default that loads when no
+`?doc=` is given. Its remaining threads and its dev history show what a real
+Spec Workbench document looks like in practice.
 
 At runtime, the `[program:spec-workbench]` entry in `system/supervisord.conf`
 starts the app on boot. It first runs `system/scripts/forward_port.py` to
@@ -67,7 +69,7 @@ which is the stock template's own agent-messaging command.
 
 ## Recipe
 
-This template is version `v1`. It is not a fork of the
+This template is version `v2`. It is not a fork of the
 workspace it came from -- it is DERIVED from it by a recipe: include these
 paths, leave these out, apply these published-version rules. An update re-runs
 the recipe against the current workspace and publishes the result as the next
@@ -113,9 +115,9 @@ of which block boot:
 - **Comment author name.** Comments and replies made through the web UI are
   signed `user` by default. To sign them with a real name, set
   `SPEC_WORKBENCH_AUTHOR=<name>` on the same supervisord program entry.
-- **Default document.** With no `?doc=` in the URL the app opens
-  `docs/specs/spec_workbench.md` -- the included worked example that documents
-  the app itself. Point it at your own document by setting `SPEC_WORKBENCH_DOC`
+- **Default document.** With no `?doc=` in the URL the app opens the bundled
+  how-to-use intro (`docs/specs/how_to_use_spec_workbench.md`) as the default
+  document. Point it at your own document by setting `SPEC_WORKBENCH_DOC`
   to a workspace-root-relative path on the supervisord program entry (any
   markdown file under the workspace root can also be opened ad hoc via the
   in-app "open file..." picker or `?doc=<path>`).
@@ -169,6 +171,8 @@ appends one entry per version (newest last); earlier entries are never rewritten
 This is distinct from "Adaptation history" below, which is the ADOPTERS' log.
 
 ### v1 (2026-08-24) -- first release: the Spec Workbench app (margin-threaded markdown documents with the notify-agent loop, the bundled quickstart guide, and the open-spec CLI), wired to run on boot, plus its own living spec as the worked-example default document.
+
+### v2 (2026-08-24) -- the default document is now a bundled "how to use this" intro the adopter can annotate immediately (the app's own spec stays included as the worked example); comments preserve line breaks and paragraph gaps; story-list status badges know the full vocabulary; example spec refreshed.
 
 ## Adaptation history
 

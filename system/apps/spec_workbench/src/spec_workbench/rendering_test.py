@@ -39,10 +39,15 @@ def test_render_prose_html_renders_tables() -> None:
 
 
 def test_render_prose_html_turns_story_marks_into_badges() -> None:
-    rendered_html = render_prose_html("- `done` shipped thing\n- `open` pending thing\n", (0, 1))
+    rendered_html = render_prose_html(
+        "- `done` shipped thing\n- `open` pending thing\n- `planned` next thing\n- `idea` parked thing\n",
+        (0, 1, 2, 3),
+    )
 
     assert '<span class="badge done">done</span>' in rendered_html
     assert '<span class="badge open">open</span>' in rendered_html
+    assert '<span class="badge planned">planned</span>' in rendered_html
+    assert '<span class="badge idea">idea</span>' in rendered_html
     assert "<code>done</code>" not in rendered_html
 
 
@@ -60,6 +65,29 @@ def test_render_prose_html_turns_heading_status_codes_into_badges() -> None:
 
     assert '<span class="badge building">building</span>' in rendered_html
     assert "<code>building</code>" not in rendered_html
+
+
+def test_build_note_views_keeps_message_line_breaks() -> None:
+    document = parse_spec_document(
+        "# Doc\n"
+        "\n"
+        "A block. {#b}\n"
+        "\n"
+        "> [!thread] #t1 on {#b} -- open\n"
+        "> **maciek (2026-08-24 17:00):** first line\n"
+        "> second line\n"
+        ">\n"
+        "> a paragraph after a blank line\n"
+    )
+
+    note_views = build_note_views(document)
+
+    message_html = note_views[0]["messages"][0]["html"]
+    # line breaks survive as <br> (a blank line reads as a paragraph gap);
+    # no structural markdown is introduced
+    assert "first line<br" in message_html
+    assert "second line<br" in message_html
+    assert "<p" not in message_html and "<ul" not in message_html
 
 
 def test_build_note_views_assigns_inks_by_opening_author() -> None:

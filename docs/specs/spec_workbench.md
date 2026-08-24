@@ -3,8 +3,8 @@
 app: spec-workbench          # name settled in #t1
 status: building             # drafting -> building -> maintaining
 notify-agent:               # set to your agent's name to route this document's notify presses
-agent-seen: 2026-08-21T06:15:48Z
-notified: v8 (2026-08-21T06:06:25Z)
+agent-seen: 2026-08-24T18:13:59Z
+notified: v10 (2026-08-24T18:11:59Z)
 ---
 
 # Spec Workbench
@@ -235,6 +235,14 @@ accretes (#t6). Deliberately plain bullets: no table or story grammar
   drafted, not only after sending (2026-08-15)
 - `done` sending a reply or comment keeps the reader's exact place --
   no scroll jump (2026-08-15)
+- `done` comments keep their line breaks and paragraph gaps when
+  rendered -- inline markdown only, no structural elements (#t29,
+  2026-08-24)
+- `planned` structural selections (double-click on a bullet, etc.)
+  shrink to the commentable range where that is unambiguous (#t30)
+- `planned` a selection beyond what can be anchored shows a disabled
+  comment button whose tooltip says why, instead of no affordance at
+  all -- the base for later expanding what is commentable (#t30)
 
 ### F2. Suggestion mode -- `planned`                         {#f2}
 
@@ -246,7 +254,7 @@ deferred).
 ### F3. Status tracking and progress rollup -- `planned`     {#f3}
 
 Statuses render as badges; a small overview (per-feature state, open thread
-count) rolls up at the top. The document doubles as the project dashboard.
+count) rolls up at the top. The document doubles as the project dashboard. {#statuses-render-as-badges}
 
 ### F4. "Notify agent" button -- `done`                      {#f4}
 
@@ -297,6 +305,63 @@ Everything about the raw markdown view beyond "it exists with a way back":
 syntax coloring and whatever else. Moved out of F1's scope (#t12) -- the
 raw text is not currently relevant.
 
+### F8. Usability in Minds -- `building`                     {#minds-usability}
+
+Everything that makes the workbench work *as a Minds citizen* -- usable by
+agents, portable across workspaces, self-explanatory to a Mind that has
+never seen it. Partially delivered; also the parking lot for
+adoption-related work (skills, `use-template` follow-ups, cross-workspace
+feedback).
+
+- `done` per-document agent routing: `notify-agent:` in frontmatter names
+  the document's agent; documents without it fall back to the
+  workspace-configured target (`SPEC_WORKBENCH_NOTIFY_AGENT`); with
+  neither, a press stamps and records but nudges no one (2026-08-24)
+- `done` a notify press wakes a stopped agent (`--start`), and every
+  press leaves a durable JSON event regardless of delivery (#t27)
+- `done` self-documenting: the bundled quickstart covers the format and
+  the sweep conventions, serves rendered at `/quickstart`, and every
+  nudge carries a pointer to it for agents that have never seen the
+  format (2026-08-24)
+- `done` agents can surface a document in the user's tab --
+  `uv run open-spec <path>` opens, retargets, and focuses the workbench
+  (2026-08-24)
+- `done` published as a template: `github.com/trisiak/spec-workbench`
+  (private, v1, 2026-08-24) -- a bootable snapshot other Minds adopt via
+  `use-template`; personal names stay in workspace config, and the
+  published copy of this spec ships as the worked example
+- `planned` a crystallized skill for the sweep workflow, so an adopting
+  Mind's agent gets the conventions as a skill rather than only a guide
+  to read
+- `idea` capture `use-template` adoption results: what the adopting
+  workspace had to adapt, fed back into this spec and the next template
+  version {#idea-capture-use-template-adoption}
+
+> [!thread] #t31 on {#idea-capture-use-template-adoption} "adoption results" -- open
+> **maciek (2026-08-24 17:52):** After `use-template` and opening the app, it opens spec_workbench.md. I think it should instead of open a different "new" document that serves as an intro on how to use it (vs the current what it is).
+> **agent (2026-08-24 17:56):** Agreed -- the first adoption result, right
+> on cue. The worked example answers "what is this app" when a fresh
+> adopter needs "how do I start". Tracked as a `planned` F8 story: the
+> template's next version ships a short intro document (try commenting
+> on this line, notify your agent, open your own file) as the default
+> document, with this spec still included one picker-click away.
+> **maciek (2026-08-24 18:11):** Great, work on the "how to use this" and republishing. Which I'll test afterwards.
+> **agent (2026-08-24 18:13):** The intro exists --
+> `docs/specs/how_to_use_spec_workbench.md`, a short annotate-me page
+> (try a comment, bring your agent in, open your own files, learn the
+> format) that the next template version opens by default; this spec
+> stays a picker-click away as the lived-in example. You can preview it
+> via "open file...". Republishing as v2 is underway -- it has two
+> confirmation stops in chat, so it lands after your go-aheads there.
+- `planned` the template's default document is a fresh "how to use
+  this" intro the adopter annotates on first open; this spec stays
+  included as the deep worked example (#t31, 2026-08-24)
+- `idea` template update flow: republish as v2+ when this workspace's
+  copy meaningfully advances, and a way for adopters to pull the update
+- `idea` notify events as an automation surface: cron or skills in the
+  adopting Mind reacting to the durable event files, not just chat
+  nudges
+
 ## UX & Polish                                               {#ux-polish}
 
 Cross-feature interface niceties, tracked as stories like F1's; started
@@ -324,6 +389,15 @@ at maciek's ask in #t22 (2026-08-20).
 history under these dates. Retired ids -- #t15 was used twice before
 minting learned to skip mentioned numbers -- stay retired.)
 
+- 2026-08-24 (fourteenth in-app sweep; first bake): all fourteen
+  resolved threads pruned per the notify rider -- git holds them under
+  this date. Story badges learned the full status vocabulary (#t28);
+  comment display keeps line breaks and paragraph gaps, inline-only
+  (#t29); selection-shrinking and the disabled comment button tracked
+  as F1 stories (#t30); the template's intro-as-default-document
+  tracked as an F8 story (#t31). Between sweeps: F8 added, the app
+  published as a private template (v1) and adopted in another
+  workspace.
 - 2026-08-21 (thirteenth in-app sweep): the split button's chevron was
   mirrored by a CSS-specificity slip -- fixed and visually verified
   (#t27). Browser suite still deferred; the host remains busy.
