@@ -1,0 +1,78 @@
+# Machine-readable manifest for this template. The sibling
+# template.md holds the prose, the Requirements list, and the two
+# append-only history logs; this file is authoritative for everything
+# below. Both are generated together -- validate_template.py fails if
+# they disagree.
+format = "v2"
+
+[template]
+slug = "spec-workbench"
+title = "Spec Workbench"
+description = "Living markdown documents with Google-Docs-style margin comments: annotate any file, notify your agent, and collaborate through threads stored inline in plain markdown in git"
+thumbnail = "template.svg"
+version = "v1"
+
+# How this template is DERIVED from the workspace it came from. An
+# update re-runs this recipe rather than diffing two repos, which is what
+# keeps an exclusion excluded even though the thing still exists upstream.
+[recipe]
+include = ["system/apps/spec_workbench", "docs/specs/spec_workbench.md"]
+data_include = []
+exclude = [
+    "the source mind's other apps and libraries under system/ -- only spec_workbench is part of this template",
+    "workspace data and runtime state (data/), including data/.apps/spec-workbench/ -- these stay with the source mind",
+    "the source mind's own environment= line on the spec-workbench supervisord entry (its personal notify-agent and author names)",
+]
+modification_rules = [
+    "append the spec-workbench supervisord program entry, without any personal environment= line",
+    "register spec-workbench as a workspace dependency in the root pyproject.toml (its [project] dependencies and [tool.uv.sources])",
+    "strip resolved, accepted, and rejected discussion threads from the example spec, keeping only open ones",
+    "blank the example spec's notify-agent frontmatter value",
+    "add a banner comment to the example spec's frontmatter marking it as the app's own worked example, not adopter documentation",
+]
+
+# Everything an adopter must deal with before this is really theirs.
+# One list -- but each entry's KIND says how it is handled, because the
+# two are handled at different times by different mechanisms:
+#
+#   permission / secret / llm = ACTIVATION. The adopting agent acts on
+#   these FIRST and BY ITSELF, initiating each latchkey permission
+#   request before asking the user anything. Every one of them must have
+#   a matching requires_ line in template.md and vice versa -- the
+#   validator checks that, because an adopter once never got prompted
+#   for a permission the app needed.
+#
+#   adaptation = worked through INTERACTIVELY with the user afterwards.
+#   Prose on both sides, so it is not cross-checked.
+#
+# This app needs no ACTIVATION: it reaches no external service, needs no
+# secrets, and makes no LLM calls -- so there are no permission, secret, or
+# llm entries. Only the adaptation entries below apply, worked through
+# interactively with the user after boot.
+[requirements]
+
+[[requirements.adaptation]]
+summary = "notify presses on a document with no notify-agent frontmatter key reach no agent"
+resolution = "set notify-agent: in the document's frontmatter, or add SPEC_WORKBENCH_NOTIFY_AGENT=<agent> to the environment= line on the spec-workbench supervisord entry"
+
+[[requirements.adaptation]]
+summary = "comments and replies made through the web UI are signed 'user' by default"
+resolution = "add SPEC_WORKBENCH_AUTHOR=<name> to the environment= line on the spec-workbench supervisord entry"
+
+[[requirements.adaptation]]
+summary = "the app opens its own example spec (docs/specs/spec_workbench.md) as the default document"
+resolution = "point SPEC_WORKBENCH_DOC at your own workspace-root-relative markdown file on the spec-workbench supervisord entry"
+
+# What the included code needs INSTALLED. apt takes bare names: versions
+# are a function of the apt snapshot timestamp, so replaying names at the
+# adopter's timestamp yields versions consistent with the rest of their
+# environment. The other sources are not snapshot-pinned, so for them the
+# recorded version IS the pin (name = version).
+#
+# This app needs nothing installed beyond the stock template: its only
+# dependencies are Python packages (flask, flask-sock, markdown-it-py,
+# werkzeug) declared in its own pyproject and resolved by `uv sync`. The
+# tables stay empty.
+[environment]
+apt = []
+env_d_units = []

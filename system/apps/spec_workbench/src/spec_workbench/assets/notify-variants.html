@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>notify button — variants (#t27)</title>
+<link rel="stylesheet" href="style.css">
+<style>
+  /* throwaway mock for #t27 -- three ways to attach context to a notify press */
+  body { padding: 0 0 60px; }
+  .intro { max-width: 720px; margin: 26px auto 0; padding: 0 24px; }
+  .intro h1 { font-size: 22px; margin: 0 0 6px; }
+  .intro p { color: var(--meta); font-size: 14px; margin: 0 0 4px; }
+  .variant { max-width: 980px; margin: 30px auto 0; padding: 0 24px; }
+  .variant h2 { font-size: 15px; margin: 0 0 8px; font-family: var(--mono); }
+  .variant .note-line { font-size: 13px; color: var(--meta); margin: 6px 0 10px; max-width: 640px; }
+  .mockbar {
+    border: 1px solid var(--rule); background: var(--card); border-radius: 6px;
+    padding: 12px 18px; display: flex; align-items: center; gap: 14px; position: relative;
+  }
+  .mockbar .title { font-size: 17px; font-weight: 600; }
+  .mockbar .path { font-family: var(--mono); font-size: 11px; color: var(--meta); }
+  .spacer { flex: 1; }
+  .notify-mock { color: var(--pen); border-color: var(--pen); padding: 2px 8px; }
+  .notify-mock:hover { background: var(--pen-soft); }
+  .chev { padding: 2px 5px; border-left: none; border-radius: 0 4px 4px 0; }
+  .split .notify-mock { border-radius: 4px 0 0 4px; }
+  .popover {
+    position: absolute; top: 44px; right: 16px; z-index: 10;
+    background: var(--card); border: 1px solid var(--rule); border-radius: 6px;
+    box-shadow: 0 6px 24px rgba(31,35,40,.16); padding: 10px 12px; width: 300px;
+    display: none;
+  }
+  .popover.shown { display: block; }
+  .popover textarea {
+    width: 100%; font-family: var(--serif); font-size: 13px; border: 1px solid var(--rule);
+    border-radius: 4px; padding: 6px 8px; background: var(--paper); resize: none; height: 56px;
+  }
+  .popover .row { display: flex; justify-content: flex-end; gap: 7px; margin-top: 8px; }
+  .inline-field {
+    font-family: var(--serif); font-size: 12.5px; color: var(--meta);
+    border: 1px solid var(--rule); border-radius: 4px 0 0 4px; border-right: none;
+    padding: 3px 9px; background: var(--paper); width: 230px;
+  }
+  .inline-attached { border-radius: 0 4px 4px 0; }
+</style>
+</head>
+<body>
+
+<div class="intro">
+  <h1>notify with context — three variants</h1>
+  <p>All send the usual nudge; the text rides along for prioritization or out-of-band asks.</p>
+  <p>Reply in #t27 with A, B, or C (tweaks welcome).</p>
+</div>
+
+<div class="variant">
+  <h2>A — split button</h2>
+  <p class="note-line">Plain click sends the default immediately (today's behavior). The chevron opens an editor for the occasional custom message.</p>
+  <div class="mockbar split">
+    <span class="title">spec-workbench</span><span class="path">docs/specs/spec_workbench.md</span>
+    <span class="spacer"></span>
+    <button class="btn notify-mock">notify agent (2)</button><button class="btn notify-mock chev" onclick="this.closest('.mockbar').querySelector('.popover').classList.toggle('shown')">▼</button>
+    <div class="popover">
+      <textarea>Please sweep the document.</textarea>
+      <div class="row"><button class="btn primary">notify</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="variant">
+  <h2>B — always ask</h2>
+  <p class="note-line">Every press opens the editor prefilled with the default; Enter or the button sends. One extra keypress on the common path, but the message is always in front of you.</p>
+  <div class="mockbar">
+    <span class="title">spec-workbench</span><span class="path">docs/specs/spec_workbench.md</span>
+    <span class="spacer"></span>
+    <button class="btn notify-mock" onclick="this.closest('.mockbar').querySelector('.popover').classList.toggle('shown')">notify agent (2)</button>
+    <div class="popover shown">
+      <textarea>Please sweep the document.</textarea>
+      <div class="row"><button class="btn primary">send</button></div>
+    </div>
+  </div>
+</div>
+
+<div class="variant">
+  <h2>C — inline field</h2>
+  <p class="note-line">The message lives permanently in the bar as an editable field attached to the button; type over it (or not) and press notify. No popover at all, but it takes header width.</p>
+  <div class="mockbar">
+    <span class="title">spec-workbench</span><span class="path">docs/specs/spec_workbench.md</span>
+    <span class="spacer"></span>
+    <input class="inline-field" value="Please sweep the document.">
+    <button class="btn notify-mock inline-attached">notify agent (2)</button>
+  </div>
+</div>
+
+</body>
+</html>

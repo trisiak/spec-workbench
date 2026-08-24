@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{{ app_name or "Spec Workbench" }} — {{ spec_path }}</title>
+<link rel="stylesheet" href="assets/style.css?v={{ asset_version }}">
+</head>
+<body>
+
+<header>
+  <span class="title">{{ app_name or "Spec Workbench" }}</span>
+  <span class="docstatus" id="docstatus"{% if not doc_status %} hidden{% endif %}>{{ doc_status or "" }}</span>
+  <span class="path">{{ spec_path }}</span>
+  <button class="openfile" id="openfile" title="Open another markdown file">open file…</button>
+  <span class="seen" id="agentseen"{% if not agent_seen %} hidden{% endif %}>{% if agent_seen %}agent-seen {{ agent_seen }}{% endif %}</span>
+  <span class="seen" id="notified"{% if not notified %} hidden{% endif %}>{% if notified %}notified {{ notified }}{% endif %}</span>
+  <span class="newnav" id="newnav"{% if not new_for_you %} hidden{% endif %}>
+    <button class="newarrow" id="newprev" title="Previous new item">▲</button>
+    <button class="newlabel" id="newlabel" title="Jump to the next new item">{% if new_for_you %}{{ new_for_you }} new for you{% endif %}</button>
+    <button class="newarrow" id="newnext" title="Next new item">▼</button>
+  </span>
+  <span class="notify-split"><button class="btn notify" id="notify" title="Stamp the document and nudge the agent to sweep it (counts your comments pending until then)">notify agent{% if pending_count %} ({{ pending_count }}){% endif %}</button><button class="btn notify notify-chev" id="notifychev" title="Notify with a message">▼</button></span>
+  <span class="inks">
+    <span><span class="dot pen-bg"></span>{{ ui_author_name }}</span>
+    <span><span class="dot pencil-bg"></span>agent</span>
+  </span>
+</header>
+
+<div class="doc" id="doc">
+  <article class="prose" id="article">{{ article_html | safe }}</article>
+  <div class="railcol" id="railcol"></div>
+</div>
+
+<footer>
+  rendered from {{ spec_path }} &middot; <a href="raw{{ doc_query }}">view raw markdown</a> &middot; <a href="quickstart">how this works</a>
+</footer>
+
+<script id="notes-data" type="application/json">{{ note_views | tojson }}</script>
+<script src="assets/app.js?v={{ asset_version }}"></script>
+</body>
+</html>

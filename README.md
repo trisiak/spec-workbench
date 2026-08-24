@@ -1,52 +1,85 @@
-# Your workspace
+<p align="center">
+  <img alt="Spec Workbench" src="template.svg" width="480">
+</p>
 
-This folder is your mind's home: everything it knows, everything it builds,
-and the machinery that keeps it running.
+# Spec Workbench
 
-## Creations
+<p align="center">
+  <a href="https://boweiliu.github.io/open-in-minds/?git_url=https://github.com/trisiak/spec-workbench"><img alt="Open in Minds" height="64" src="https://img.shields.io/badge/Open%20in%20Minds-D8D1C0?style=for-the-badge"></a>
+</p>
 
-Broadly, in Minds you make "creations". These can be "code" (apps, skills, and
-the services behind them) or "data" (documents, images, notes).
+Didn't work? Create a Minds workspace and paste this to your agent:
+` /use-template https://github.com/trisiak/spec-workbench`
 
-Minds makes this easier by defining some conventions for the common things
-you'll want to make:
+## Why you care
 
-1. an "app" - something you can open as a tab and interact with
-2. a "skill" - teaches your mind how to do work you care about. A skill that
-   is automatically run on a schedule is called an "automation" (the
-   machinery that runs them lives in `system/libs/automations/`; the weekly
-   Caretaker is the built-in example)
-3. some "data" - documents, images, notes, or data created by your apps and
-   skills
-4. some "customizations" - changes to any of the above. Everything in Minds
-   can be modified by you!
+Planning and reviewing work with an agent happens in chat, where it scrolls
+away: decisions get buried, and the document you actually care about lives
+somewhere else. Spec Workbench flips that around. It makes a plain markdown
+file the shared workspace -- you and your agent comment on it, thread on it,
+suggest edits, and resolve them, Google-Docs style -- while every one of those
+annotations is stored *inside the file itself*, so the whole conversation
+stays versioned and diffable in git instead of trapped in a chat log or a
+proprietary database.
 
-## What's here
+## Status
 
-- `apps/` - Everything you can open as a tab: the built-in apps (the
-  terminal, the browser) and the apps your mind builds for you. (A shortcut
-  to `system/apps/`.)
-- `skills/` - Everything your mind knows how to do: the built-in skills and
-  the ones it has learned for you. (A shortcut to `.agents/skills/`.)
-- `data/` - Your workspace's data: documents and project folders, files
-  you've uploaded, your mind's memories, and each app's stored data.
-- `docs/` - Guides to this workspace: what it is, how it works, and a history
-  of where it came from.
-- `system/` - The machinery that runs the workspace: the apps themselves,
-  background services, scripts, and configuration. You can look around (every
-  folder has a README), and your mind maintains it for you.
+Work in progress. The app is usable day-to-day (commenting, threads, the
+notify loop, multi-file support), but several features are still being
+built. The full picture lives in the app's own living spec --
+[`docs/specs/spec_workbench.md`](docs/specs/spec_workbench.md) -- which
+carries per-feature build status and is itself edited through the app.
 
-A few housekeeping files live alongside them:
+## How to use it
 
-- `README.md` - This file.
-- `CLAUDE.md` - The standing instructions your mind follows.
-- `pyproject.toml` and `uv.lock` - The Python project definition; the tooling
-  requires them at the top level.
+Open any markdown file in the workbench and it renders as a two-column page:
+your prose on the left, a margin of comment threads on the right.
 
-## Where things are kept safe
+- **Comment.** Select a phrase or click a section and leave a comment. It is
+  written straight into the file as a blockquote thread anchored to that text.
+  Reply in threads, and resolve them when you are satisfied.
+- **Suggest.** Propose an edit as an inline diff anchored to the text it
+  changes (one-click accept/reject is still to be implemented; the on-disk
+  format already carries suggestion states).
+- **Notify your agent.** One "notify agent" button stamps the document and
+  pings your agent to sweep it -- read what is new, reply in the threads, do
+  the work they ask for, and commit. The header counters tell you what is new
+  for you and what you have not yet sent over. An optional message rides along
+  with the press for extra context ("prioritize the perf thread").
+- **Open any file.** The default view is the app's own living spec (a worked
+  example of the format). Use the in-app "open file..." picker or
+  `?doc=<path>` to point it at any markdown file in your workspace; agents can
+  surface a document in your open tab with `uv run open-spec <path>`.
+- **Everything is plain markdown.** Comments, replies, suggestions, and
+  statuses are ordinary blockquotes in the file, so it stays readable on
+  GitHub or in any editor, and the raw source is always one click away. A
+  bundled quickstart (the `/quickstart` route) documents the full format.
 
-The workspace is a git repository: code and configuration changes are
-committed as your mind works. Everything under `data/` is deliberately kept
-out of git (it can be large, personal, or both) and is protected by the
-workspace's continuous encrypted backup instead, along with the rest of the
-workspace. See `docs/` for details.
+## Ideas for making it yours
+
+- **Use it beyond specs.** The format does not care what the markdown is about
+  -- co-write a PRD, review meeting notes, or annotate a design doc with the
+  same comment-and-thread loop.
+- **Wire notify into more than chat.** Every press drops a durable JSON event
+  under the app's data dir -- listen for those to trigger CI, a Slack ping, or
+  any background job, not just an agent sweep.
+- **Turn the document into a dashboard.** The per-section status grammar
+  (`idea -> planned -> building -> done`) is plain text; build the rollup that
+  reads it and shows project progress at the top of the page.
+- **Annotate the running app, not just the file.** Extend it so a click on a
+  live UI element leaves a thread in the document, bridging "comment on the
+  app" and "comment on the spec".
+- **Polish the raw view.** The one-click raw source is deliberately plain --
+  add syntax highlighting, a diff-against-last-commit view, or a table of open
+  threads.
+
+## What this is
+
+This repository is a published **minds template**: a clean, bootable
+snapshot of what a mind built, ready to adapt into your own. It is NOT the
+generic workspace template -- it is this specific project.
+
+[`template.md`](template.md) is the full manifest -- what it is, how it
+works, what it needs to run, and what to adapt -- with the
+machine-readable half (recipe, requirements, and the environment it needs
+installed) in [`template.toml`](template.toml).

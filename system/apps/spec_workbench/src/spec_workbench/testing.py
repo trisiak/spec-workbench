@@ -1,0 +1,41 @@
+from imbue.imbue_common.pure import pure
+
+
+@pure
+def make_sample_document_text() -> str:
+    """A small spec document exercising frontmatter, anchors, threads, and both suggestion forms."""
+    return (
+        "---\n"
+        "app: sample-app          # a comment\n"
+        "status: drafting\n"
+        "agent-seen: 2026-08-14T00:00:00Z\n"
+        "---\n"
+        "\n"
+        "# Sample App\n"
+        "\n"
+        "Intro paragraph.\n"
+        "\n"
+        "## Why {#why}\n"
+        "\n"
+        "Because documents beat chat.\n"
+        "\n"
+        "> [!thread] #t1 on {#why} -- open\n"
+        "> **maciek (2026-08-14):** first line\n"
+        "> second line of the same message\n"
+        "> **agent (2026-08-14, via chat):** a reply\n"
+        "\n"
+        "## Features {#features}\n"
+        "\n"
+        "### F1. Render -- `building` {#f1}\n"
+        "\n"
+        "> [!suggest] #s1 on {#why} \"beat chat\" by agent (2026-08-14) -- open\n"
+        "> beat linear chat\n"
+        "\n"
+        "> [!suggest] #s2 on {#f1} by maciek (2026-08-14) -- rejected (2026-08-15)\n"
+        "> ```diff\n"
+        "> -Render\n"
+        "> +Render nicely\n"
+        "> ```\n"
+        "\n"
+        "Closing prose.\n"
+    )
