@@ -73,7 +73,9 @@ header .notify-split .notify-chev {
   width: 100%; font-family: var(--serif); font-size: 13px; height: 56px; resize: none;
   border: 1px solid var(--rule); border-radius: 4px; padding: 6px 8px; background: var(--paper);
 }
-.notify-pop .actions { justify-content: flex-end; }
+/* button leads (matching the comment box), the who-it-reaches phrase follows */
+.notify-pop .actions { justify-content: flex-start; align-items: center; }
+.notify-pop .who { font-family: var(--mono); font-size: 11px; color: var(--meta); }
 header .newnav {
   display: inline-flex; align-items: center;
   background: var(--pencil-soft); border-radius: 3px;
@@ -275,6 +277,16 @@ footer a { color: var(--meta); }
   transition: opacity .2s; pointer-events: none;
 }
 .toast.shown { opacity: .92; }
+
+/* the stale-view notice: quiet, persistent, click applies the refresh */
+.stale-pill {
+  position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); z-index: 45;
+  background: var(--card); color: var(--pencil); border: 1px solid var(--pencil);
+  font-family: var(--mono); font-size: 11px; padding: 7px 14px; border-radius: 999px;
+  cursor: pointer; box-shadow: 0 4px 16px rgba(31, 35, 40, .14);
+}
+.stale-pill:hover { background: var(--pencil-soft); }
+.stale-pill[hidden] { display: none; }
 
 /* in-page ask: sandboxed frames suppress native confirm() dialogs */
 .ask-overlay {

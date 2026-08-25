@@ -810,6 +810,14 @@
     if (notifyBtn) {
       notifyBtn.textContent = "notify agent" + (data.pendingCount ? " (" + data.pendingCount + ")" : "");
     }
+    var notifySplit = document.getElementById("notifysplit");
+    if (notifySplit) notifySplit.dataset.agent = data.notifyAgent || "";
+    var agentNames = document.getElementById("agentnames");
+    if (agentNames) agentNames.textContent = data.agentNames || "agent";
+    // our own re-render consumed this change; the poll shouldn't re-fire
+    // on it, and any pending stale notice is satisfied by it
+    if (data.docStamp) lastDocStamp = data.docStamp;
+    if (stalePill) stalePill.hidden = true;
     humanizeHeaderTimes();
     buildAll();
     // the re-render killed any live ranges; re-run an open search on the new DOM
@@ -836,6 +844,37 @@
       });
     });
   }
+
+  /* stale-view notice (#t34): poll the document's on-disk stamp and, when
+     the file changes under us (an agent's sweep, a hand edit), show a
+     quiet click-to-refresh pill. NOTHING re-renders on its own -- a page
+     mid-read or mid-comment never moves; the click applies the same
+     no-reload path replies use, so scroll and folds survive. */
+  var lastDocStamp = null;
+  var stalePill = null;
+  function showStalePill() {
+    if (!stalePill) {
+      stalePill = el("button", "stale-pill", "document changed — refresh");
+      stalePill.addEventListener("click", function () {
+        stalePill.hidden = true;
+        refreshDocument(null);
+      });
+      document.body.appendChild(stalePill);
+    }
+    stalePill.hidden = false;
+  }
+  function pollDocStamp() {
+    if (document.visibilityState === "hidden") return;
+    fetch(apiUrl("api/stamp")).then(function (response) {
+      if (!response.ok) return;
+      response.json().then(function (data) {
+        if (lastDocStamp === null) { lastDocStamp = data.stamp; return; }
+        if (data.stamp !== lastDocStamp) showStalePill();
+      });
+    }).catch(function () {});
+  }
+  setInterval(pollDocStamp, 4000);
+  pollDocStamp();
 
   function submitReply(noteId, textarea) {
     var text = textarea.value.trim();
@@ -1038,14 +1077,22 @@
   /* the chevron half of the split button: notify with a message riding along */
   var notifyPop = null;
   var notifyPopText = null;
+  var notifyPopWho = null;
+  function notifyTargetName() {
+    var split = document.getElementById("notifysplit");
+    return (split && split.dataset.agent) || "";
+  }
   function toggleNotifyPopover() {
     if (!notifyPop) {
       notifyPop = el("div", "notify-pop");
       notifyPopText = document.createElement("textarea");
       notifyPopText.setAttribute("aria-label", "Message to send with the notification");
+      // button left-aligned like the comment box; who-it-reaches to its right (#t32)
       var actions = el("div", "actions");
-      var sendBtn = el("button", "btn primary", "notify");
+      var sendBtn = el("button", "btn primary", "Notify");
+      notifyPopWho = el("span", "who");
       actions.appendChild(sendBtn);
+      actions.appendChild(notifyPopWho);
       notifyPop.appendChild(notifyPopText);
       notifyPop.appendChild(actions);
       notifyPop.hidden = true;
@@ -1068,6 +1115,8 @@
       });
     }
     if (notifyPop.hidden) {
+      var target = notifyTargetName();
+      notifyPopWho.textContent = target ? "will message " + target : "no agent set for this document";
       notifyPopText.value = "Please sweep the document.";
       notifyPop.hidden = false;
       notifyPopText.focus();

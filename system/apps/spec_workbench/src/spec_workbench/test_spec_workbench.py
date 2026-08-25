@@ -349,6 +349,37 @@ def test_notify_stamps_the_document_writes_an_event_and_nudges_the_agent(tmp_pat
     assert "focus on the F2 comments first" in newest_event.read_text()
 
 
+def test_stamp_endpoint_changes_exactly_when_the_file_does(tmp_path: Path) -> None:
+    client, spec_path = _make_test_app_with_document(tmp_path)
+
+    first = client.get("/api/stamp").get_json()["stamp"]
+    unchanged = client.get("/api/stamp").get_json()["stamp"]
+    spec_path.write_text(spec_path.read_text() + "\nAn appended line.\n")
+    changed = client.get("/api/stamp").get_json()["stamp"]
+
+    assert first == unchanged
+    assert changed != first
+    # the full payload carries the same stamp so a re-render resets the poll
+    assert client.get("/api/doc").get_json()["docStamp"] == changed
+
+
+def test_document_payload_names_the_notify_target(tmp_path: Path) -> None:
+    spec_path = tmp_path / "spec.md"
+    spec_path.write_text(make_sample_document_text())
+    (tmp_path / "owned.md").write_text("---\nnotify-agent: doc-owner\n---\n\n# Owned\n")
+    registry = DocumentRegistry(workspace_root=tmp_path, default_document=spec_path)
+    client = create_app(
+        document_registry=registry,
+        ui_author_name="maciek",
+        notifications_dir=tmp_path / ".notifications",
+        default_notify_agent="fallback-agent",
+    ).test_client()
+
+    # frontmatter wins; the configured default covers documents without it
+    assert client.get("/api/doc?doc=owned.md").get_json()["notifyAgent"] == "doc-owner"
+    assert client.get("/api/doc").get_json()["notifyAgent"] == "fallback-agent"
+
+
 def test_notify_targets_the_agent_named_in_the_document_frontmatter(tmp_path: Path) -> None:
     spec_path = tmp_path / "spec.md"
     spec_path.write_text(make_sample_document_text())
@@ -441,10 +472,10 @@ def test_real_spec_document_parses_with_all_expected_notes() -> None:
     document = parse_spec_document(_REAL_SPEC_PATH.read_text())
 
     note_ids = [note.note_id for note in document.notes]
-    # survivors of the first bake (2026-08-24): the open suggestion syntax
-    # examples and whatever threads are currently open; every resolved
-    # thread -- t0 included -- was pruned to git history
+    # the open suggestion syntax examples always survive; threads come and
+    # go (resolved ones accumulate between bakes, then prune to git
+    # history -- the first bake, 2026-08-24, removed t0 with the rest)
     assert set(note_ids) >= {"s0", "s2"}
-    assert all(note.state == NoteState.OPEN for note in document.notes)
+    assert all(note.note_id != "t0" for note in document.notes)
     assert document.frontmatter is not None
     assert document.frontmatter.app_name == "spec-workbench"

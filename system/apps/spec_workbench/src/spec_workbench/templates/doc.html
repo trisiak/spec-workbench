@@ -20,10 +20,10 @@
     <button class="newlabel" id="newlabel" title="Jump to the next new item">{% if new_for_you %}{{ new_for_you }} new for you{% endif %}</button>
     <button class="newarrow" id="newnext" title="Next new item">▼</button>
   </span>
-  <span class="notify-split"><button class="btn notify" id="notify" title="Stamp the document and nudge the agent to sweep it (counts your comments pending until then)">notify agent{% if pending_count %} ({{ pending_count }}){% endif %}</button><button class="btn notify notify-chev" id="notifychev" title="Notify with a message">▼</button></span>
+  <span class="notify-split" id="notifysplit" data-agent="{{ notify_agent or '' }}"><button class="btn notify" id="notify" title="Stamp the document and nudge the agent to sweep it (counts your comments pending until then)">notify agent{% if pending_count %} ({{ pending_count }}){% endif %}</button><button class="btn notify notify-chev" id="notifychev" title="Notify with a message">▼</button></span>
   <span class="inks">
     <span><span class="dot pen-bg"></span>{{ ui_author_name }}</span>
-    <span><span class="dot pencil-bg"></span>agent</span>
+    <span><span class="dot pencil-bg"></span><span id="agentnames">{{ agent_names or "agent" }}</span></span>
   </span>
 </header>
 

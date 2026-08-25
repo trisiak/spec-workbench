@@ -61,6 +61,7 @@ from spec_workbench.errors import QuoteResolutionError
 from spec_workbench.parsing import parse_spec_document
 from spec_workbench.registry import DocumentRegistry
 from spec_workbench.rendering import build_note_views
+from spec_workbench.rendering import collect_agent_author_names
 from spec_workbench.rendering import count_message_activity
 from spec_workbench.rendering import render_prose_html
 from spec_workbench.store import FileSpecStore
@@ -150,15 +151,26 @@ def create_app(
         """Everything the frontend needs to (re)render: prose HTML, notes, header fields."""
         document = parse_spec_document(spec_store.read_document_text())
         frontmatter = document.frontmatter
-        pending_from_user, new_from_agent = count_message_activity(document)
+        pending_from_user, new_from_agent = count_message_activity(document, ui_author_name)
         notified = (
             f"v{frontmatter.notified_version} {frontmatter.notified_at}"
             if frontmatter is not None and frontmatter.notified_version is not None
             else None
         )
+        # the same resolution the notify press uses, surfaced so the UI can
+        # say who a press will reach before it happens (#t32)
+        notify_target = (
+            frontmatter.notify_agent if frontmatter is not None and frontmatter.notify_agent else None
+        ) or (default_notify_agent or None)
+        file_stat = spec_store.spec_path.stat()
         return {
+            "docStamp": f"{file_stat.st_mtime_ns}-{file_stat.st_size}",
+            "notifyAgent": notify_target,
             "articleHtml": render_prose_html(document.prose_markdown, document.prose_file_line_numbers),
-            "notes": build_note_views(document),
+            "notes": build_note_views(document, ui_author_name),
+            # display string for the header legend: the actual agent names
+            # seen in this document, not a generic "agent" (#t33)
+            "agentNames": ", ".join(collect_agent_author_names(document, ui_author_name)) or None,
             "appName": frontmatter.app_name if frontmatter is not None else None,
             "docStatus": frontmatter.status if frontmatter is not None else None,
             "agentSeen": frontmatter.agent_seen if frontmatter is not None else None,
@@ -178,6 +190,8 @@ def create_app(
         doc_param = _requested_doc_param()
         return render_template(
             "doc.html",
+            notify_agent=payload["notifyAgent"],
+            agent_names=payload["agentNames"],
             app_name=payload["appName"],
             doc_status=payload["docStatus"],
             agent_seen=payload["agentSeen"],
@@ -260,6 +274,18 @@ def create_app(
     @app.route("/api/files")
     def api_files() -> Response:
         return jsonify({"files": document_registry.list_markdown_files()})
+
+    @app.route("/api/stamp")
+    def api_stamp() -> Response | tuple[Response, int]:
+        # The cheap poll target behind live refresh (#t34): the document's
+        # on-disk identity, no parsing or rendering. The page re-fetches
+        # the full document only when this changes.
+        try:
+            spec_store = _resolved_store()
+        except DocumentNotAllowedError as e:
+            return jsonify({"error": str(e)}), 404
+        file_stat = spec_store.spec_path.stat()
+        return jsonify({"stamp": f"{file_stat.st_mtime_ns}-{file_stat.st_size}"})
 
     @app.route("/api/notify", methods=["POST"])
     def notify() -> Response | tuple[Response, int]:

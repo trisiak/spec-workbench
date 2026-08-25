@@ -26,7 +26,11 @@ _STORY_MARK_RE: Final[re.Pattern[str]] = re.compile(
     r"(<li[^>]*>\s*(?:<p[^>]*>)?)<code>(idea|planned|building|done|verified|open)</code>"
 )
 
-_AGENT_AUTHOR_NAME: Final[str] = "agent"
+# Ink means ROLE, decided by exclusion (#t33): pen (red) is reserved for
+# the document's human -- the workspace-configured UI author plus the
+# generic fallbacks -- and every other author (an agent's logical name
+# like "meta-markdown", or plain "agent") renders pencil (blue).
+_FALLBACK_HUMAN_AUTHOR_NAMES: Final[frozenset[str]] = frozenset({"user"})
 
 _DIFF_FENCE_RE: Final[re.Pattern[str]] = re.compile(r"^\s*```")
 
@@ -40,8 +44,14 @@ _ANCHORABLE_TOKEN_TYPES: Final[tuple[str, ...]] = (
 
 
 @pure
-def _ink_for_author(author: str | None) -> str:
-    return "pencil" if author == _AGENT_AUTHOR_NAME else "pen"
+def _human_author_names(ui_author_name: str) -> frozenset[str]:
+    return _FALLBACK_HUMAN_AUTHOR_NAMES | {ui_author_name}
+
+
+@pure
+def _ink_for_author(author: str | None, human_names: frozenset[str]) -> str:
+    # None (an unattributed hand-written entry) reads as the human's
+    return "pen" if author is None or author in human_names else "pencil"
 
 
 @pure
@@ -150,8 +160,9 @@ def _new_message_flags(note: MarginNote, notified_cursor: str | None) -> list[bo
 
 
 @pure
-def count_message_activity(document: SpecDocument) -> tuple[int, int]:
+def count_message_activity(document: SpecDocument, ui_author_name: str) -> tuple[int, int]:
     """(pending_from_user, new_from_agent): new messages awaiting the other side."""
+    human_names = _human_author_names(ui_author_name)
     notified_cursor = _normalize_cursor(
         document.frontmatter.notified_at if document.frontmatter is not None else None
     )
@@ -161,16 +172,31 @@ def count_message_activity(document: SpecDocument) -> tuple[int, int]:
         for message, is_new in zip(note.messages, _new_message_flags(note, notified_cursor)):
             if not is_new:
                 continue
-            if message.author == _AGENT_AUTHOR_NAME:
-                new_from_agent += 1
-            else:
+            if message.author in human_names:
                 pending_from_user += 1
+            else:
+                new_from_agent += 1
     return pending_from_user, new_from_agent
 
 
 @pure
-def build_note_views(document: SpecDocument) -> list[dict[str, object]]:
+def collect_agent_author_names(document: SpecDocument, ui_author_name: str) -> list[str]:
+    """Distinct non-human author names in the document, for the header legend."""
+    human_names = _human_author_names(ui_author_name)
+    agent_names: set[str] = set()
+    for note in document.notes:
+        if note.author is not None and note.author not in human_names:
+            agent_names.add(note.author)
+        for message in note.messages:
+            if message.author not in human_names:
+                agent_names.add(message.author)
+    return sorted(agent_names)
+
+
+@pure
+def build_note_views(document: SpecDocument, ui_author_name: str) -> list[dict[str, object]]:
     """Serialize margin notes into the JSON shape the frontend renders."""
+    human_names = _human_author_names(ui_author_name)
     # breaks=True: a message renders inline-only (no structural markdown),
     # but its line breaks become <br> so multi-line comments keep their
     # shape -- a blank line reads as a paragraph gap (#t29)
@@ -188,7 +214,7 @@ def build_note_views(document: SpecDocument) -> list[dict[str, object]]:
             {
                 "author": message.author,
                 "stamp": message.stamp,
-                "ink": _ink_for_author(message.author),
+                "ink": _ink_for_author(message.author, human_names),
                 "html": markdown_renderer.renderInline(message.text),
                 "isNew": is_new,
             }
@@ -210,7 +236,7 @@ def build_note_views(document: SpecDocument) -> list[dict[str, object]]:
             {
                 "id": note.note_id,
                 "kind": note.kind.value.lower(),
-                "ink": _ink_for_author(opener_author),
+                "ink": _ink_for_author(opener_author, human_names),
                 "anchor": note.anchor.block_id,
                 "quote": note.anchor.quote,
                 "state": note.state.value.lower(),

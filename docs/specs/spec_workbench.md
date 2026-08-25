@@ -3,8 +3,8 @@
 app: spec-workbench          # name settled in #t1
 status: building             # drafting -> building -> maintaining
 notify-agent:               # set to your agent's name to route this document's notify presses
-agent-seen: 2026-08-24T18:13:59Z
-notified: v10 (2026-08-24T18:11:59Z)
+agent-seen: 2026-08-24T22:37:39Z
+notified: v12 (2026-08-24T22:33:55Z)
 ---
 
 # Spec Workbench
@@ -307,12 +307,38 @@ raw text is not currently relevant.
 
 ### F8. Usability in Minds -- `building`                     {#minds-usability}
 
+> [!thread] #t34 on {#minds-usability} -- open
+> **maciek (2026-08-25 00:20, via chat):** The other workspace does not get
+> auto-refreshes like this one -- I had to manually refresh for
+> spec-workbench to pick up the agent's edits and changes.
+> **agent (2026-08-25 00:20):** Not that workspace's fault -- the app never
+> refreshed itself anywhere. In this workspace the agent has been
+> refreshing the tab after every sweep through the workspace layout
+> tool, which masked the gap. Fixing it in the app: the page now polls
+> the document's on-disk stamp and re-renders in place when the file
+> changes (same no-reload path replies use, so scroll and folds
+> survive), pausing while you have a comment mid-draft. Ships in v3.
+> **maciek (2026-08-25 00:21, via chat):** Wait, that can actually be
+> disrupting if I'm in the middle of a comment. It shouldn't
+> auto-refresh -- the frontend should be notified but the decision stays
+> with it (a manual refresh button).
+> **agent (2026-08-25 00:23):** Reworked before shipping: nothing ever
+> re-renders on its own. When the file changes underneath, a quiet
+> "document changed -- refresh" pill appears at the bottom of the page;
+> clicking it applies the in-place refresh (scroll and folds survive),
+> and it clears itself if one of your own actions already picked the
+> change up. Mid-read and mid-comment, the page holds still.
+
 Everything that makes the workbench work *as a Minds citizen* -- usable by
 agents, portable across workspaces, self-explanatory to a Mind that has
 never seen it. Partially delivered; also the parking lot for
 adoption-related work (skills, `use-template` follow-ups, cross-workspace
 feedback).
 
+- `done` ink follows role, not name: red is reserved for the
+  workspace's configured human author, every other author -- any
+  agent's logical name -- renders blue, and the header legend lists
+  the document's actual agent names (#t33, 2026-08-24)
 - `done` per-document agent routing: `notify-agent:` in frontmatter names
   the document's agent; documents without it fall back to the
   workspace-configured target (`SPEC_WORKBENCH_NOTIFY_AGENT`); with
@@ -337,27 +363,13 @@ feedback).
   workspace had to adapt, fed back into this spec and the next template
   version {#idea-capture-use-template-adoption}
 
-> [!thread] #t31 on {#idea-capture-use-template-adoption} "adoption results" -- open
-> **maciek (2026-08-24 17:52):** After `use-template` and opening the app, it opens spec_workbench.md. I think it should instead of open a different "new" document that serves as an intro on how to use it (vs the current what it is).
-> **agent (2026-08-24 17:56):** Agreed -- the first adoption result, right
-> on cue. The worked example answers "what is this app" when a fresh
-> adopter needs "how do I start". Tracked as a `planned` F8 story: the
-> template's next version ships a short intro document (try commenting
-> on this line, notify your agent, open your own file) as the default
-> document, with this spec still included one picker-click away.
-> **maciek (2026-08-24 18:11):** Great, work on the "how to use this" and republishing. Which I'll test afterwards.
-> **agent (2026-08-24 18:13):** The intro exists --
-> `docs/specs/how_to_use_spec_workbench.md`, a short annotate-me page
-> (try a comment, bring your agent in, open your own files, learn the
-> format) that the next template version opens by default; this spec
-> stays a picker-click away as the lived-in example. You can preview it
-> via "open file...". Republishing as v2 is underway -- it has two
-> confirmation stops in chat, so it lands after your go-aheads there.
-- `planned` the template's default document is a fresh "how to use
+- `done` the template's default document is a fresh "how to use
   this" intro the adopter annotates on first open; this spec stays
   included as the deep worked example (#t31, 2026-08-24)
-- `idea` template update flow: republish as v2+ when this workspace's
-  copy meaningfully advances, and a way for adopters to pull the update
+- `done` template update flow: v2 republished as one clean commit on
+  top of the v1 snapshot (hand-crafted repo content preserved, version
+  tagged); adopters pull updates with their update-installed-template
+  flow (2026-08-24)
 - `idea` notify events as an automation surface: cron or skills in the
   adopting Mind reacting to the durable event files, not just chat
   nudges
@@ -389,6 +401,11 @@ at maciek's ask in #t22 (2026-08-20).
 history under these dates. Retired ids -- #t15 was used twice before
 minting learned to skip mentioned numbers -- stay retired.)
 
+- 2026-08-24 (sweeps v10-v12): the adopter intro document written and
+  shipped as the template's default via v2 (#t31); the notify dropdown
+  names the agent a press will reach (#t32); ink became role-based --
+  red for the configured human, blue for every agent name, real names
+  in the legend (#t33, built on the accepted proposal).
 - 2026-08-24 (fourteenth in-app sweep; first bake): all fourteen
   resolved threads pruned per the notify rider -- git holds them under
   this date. Story badges learned the full status vocabulary (#t28);

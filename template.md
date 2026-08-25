@@ -2,7 +2,7 @@
 title: "Spec Workbench"
 description: "Living markdown documents with Google-Docs-style margin comments: annotate any file, notify your agent, and collaborate through threads stored inline in plain markdown in git"
 thumbnail: "template.svg"
-version: v2
+version: v3
 format: v2
 ---
 
@@ -69,7 +69,7 @@ which is the stock template's own agent-messaging command.
 
 ## Recipe
 
-This template is version `v2`. It is not a fork of the
+This template is version `v3`. It is not a fork of the
 workspace it came from -- it is DERIVED from it by a recipe: include these
 paths, leave these out, apply these published-version rules. An update re-runs
 the recipe against the current workspace and publishes the result as the next
@@ -173,6 +173,8 @@ This is distinct from "Adaptation history" below, which is the ADOPTERS' log.
 ### v1 (2026-08-24) -- first release: the Spec Workbench app (margin-threaded markdown documents with the notify-agent loop, the bundled quickstart guide, and the open-spec CLI), wired to run on boot, plus its own living spec as the worked-example default document.
 
 ### v2 (2026-08-24) -- the default document is now a bundled "how to use this" intro the adopter can annotate immediately (the app's own spec stays included as the worked example); comments preserve line breaks and paragraph gaps; story-list status badges know the full vocabulary; example spec refreshed.
+
+### v3 (2026-08-25) -- comment colors follow role (red reserved for the workspace's human author; any agent name renders blue, with real names in the header legend); the notify dropdown names the agent a press will reach; a quiet "document changed -- refresh" notice appears when the file changes on disk, applying only on click; example spec refreshed.
 
 ## Adaptation history
 

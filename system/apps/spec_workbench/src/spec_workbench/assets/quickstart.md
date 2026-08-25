@@ -97,6 +97,10 @@ Message lines:
 - Stamps are UTC, minute-precise -- the "new"/pending counters depend
   on them. Day-only stamps are tolerated and read as the start of that
   day.
+- Author names are free-form; sign with your own logical name. Color
+  follows role, not name: the workspace's configured human author
+  renders in the red ink, and every other author -- any agent name --
+  renders in the blue ink, listed by name in the header legend.
 - A message transcribed from chat appends `, via chat` inside the
   parenthesis: `**agent (2026-08-20 18:02, via chat):** ...`
 - Continuation lines of a message are further `> ` lines without a bold

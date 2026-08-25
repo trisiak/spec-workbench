@@ -1,5 +1,6 @@
 from spec_workbench.parsing import parse_spec_document
 from spec_workbench.rendering import build_note_views
+from spec_workbench.rendering import collect_agent_author_names
 from spec_workbench.rendering import render_prose_html
 from spec_workbench.testing import make_sample_document_text
 
@@ -80,7 +81,7 @@ def test_build_note_views_keeps_message_line_breaks() -> None:
         "> a paragraph after a blank line\n"
     )
 
-    note_views = build_note_views(document)
+    note_views = build_note_views(document, "maciek")
 
     message_html = note_views[0]["messages"][0]["html"]
     # line breaks survive as <br> (a blank line reads as a paragraph gap);
@@ -93,17 +94,36 @@ def test_build_note_views_keeps_message_line_breaks() -> None:
 def test_build_note_views_assigns_inks_by_opening_author() -> None:
     document = parse_spec_document(make_sample_document_text())
 
-    note_views = build_note_views(document)
+    note_views = build_note_views(document, "maciek")
 
     ink_by_id = {view["id"]: view["ink"] for view in note_views}
     # t1 opened by maciek (pen), s1 authored by agent (pencil), s2 by maciek (pen)
     assert ink_by_id == {"t1": "pen", "s1": "pencil", "s2": "pen"}
 
 
+def test_ink_is_role_not_name_so_named_agents_render_pencil() -> None:
+    # an agent signing with its Mind's logical name must not borrow the
+    # human's ink -- pen is reserved for the configured author (#t33)
+    document = parse_spec_document(
+        "A block. {#b}\n"
+        "\n"
+        "> [!thread] #t1 on {#b} -- open\n"
+        "> **maciek (2026-08-24 17:00):** question\n"
+        "> **meta-markdown (2026-08-24 17:05):** answer under a logical name\n"
+        "> **user (2026-08-24 17:06):** unconfigured-workspace human\n"
+    )
+
+    note_views = build_note_views(document, "maciek")
+
+    inks = [m["ink"] for m in note_views[0]["messages"]]
+    assert inks == ["pen", "pencil", "pen"]
+    assert collect_agent_author_names(document, "maciek") == ["meta-markdown"]
+
+
 def test_build_note_views_renders_diff_bodies_as_typed_lines() -> None:
     document = parse_spec_document(make_sample_document_text())
 
-    note_views = build_note_views(document)
+    note_views = build_note_views(document, "maciek")
     diff_view = next(view for view in note_views if view["id"] == "s2")
 
     assert diff_view["isDiff"] is True
@@ -114,7 +134,7 @@ def test_build_note_views_renders_diff_bodies_as_typed_lines() -> None:
 def test_build_note_views_renders_message_markdown_inline() -> None:
     document = parse_spec_document("> [!thread] #t1 on {#x} -- open\n> **agent (2026-08-14):** uses `code` here\n")
 
-    note_views = build_note_views(document)
+    note_views = build_note_views(document, "maciek")
 
     assert "<code>code</code>" in str(note_views[0]["messages"][0]["html"])
 

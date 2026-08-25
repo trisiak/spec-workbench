@@ -10,7 +10,7 @@ slug = "spec-workbench"
 title = "Spec Workbench"
 description = "Living markdown documents with Google-Docs-style margin comments: annotate any file, notify your agent, and collaborate through threads stored inline in plain markdown in git"
 thumbnail = "template.svg"
-version = "v2"
+version = "v3"
 
 # How this template is DERIVED from the workspace it came from. An
 # update re-runs this recipe rather than diffing two repos, which is what
